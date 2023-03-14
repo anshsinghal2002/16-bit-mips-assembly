@@ -1,22 +1,26 @@
 BIT_LENGTH = 28
 OP_LEN = 6
+F_LEN = 6
 class Translator:
     def __init__(self) -> None:
+        self.funct = {
+            'add': self.pad(F_LEN,'100000'),
+            'and':self.pad(F_LEN,'100100'),
+            'or': self.pad(F_LEN,'100101'),
+            'sub': self.pad(F_LEN,'100010'),
+            'sw': self.pad(F_LEN,'0'),
+            'lw':self.pad(F_LEN,'0')
+        }
         self.op = {
-            'add': self.pad(OP_LEN,'000000'),
-            'and':self.pad(OP_LEN,'000001'),
-            'or': self.pad(OP_LEN,'000010'),
-            'sub': self.pad(OP_LEN,'000011'),
-            'addi': self.pad(OP_LEN,'100000'),
-            'andi': self.pad(OP_LEN,'100001'),
-            'ori': self.pad(OP_LEN,'100010'),
-            'subi': self.pad(OP_LEN,'100011'),
-            'sw': self.pad(OP_LEN,'11000'),
-            'lw':self.pad(OP_LEN,'10100')
-
+            'r':self.pad(OP_LEN,'000000'),
+            'lw':self.pad(OP_LEN,'100011'),
+            'sw':self.pad(OP_LEN,'101011'),
+            'b':self.pad(OP_LEN,'000100'),
+            'i':self.pad(OP_LEN,'100000')
         }
         self.register_op = ['add','sgt','slt','and','or','sub']
-        self.immediate=['addi','andi','ori','subi','beq']
+        self.immediate=['addi','andi','ori','subi']
+        self.branch=['beq']
         self.memory=['sw','lw']
         self.instructions=self.register_op+self.immediate+self.memory
         self.reg = {'$'+i:self.int2bs(i,3) for i in [str(j) for j in range(8)]}
@@ -25,24 +29,33 @@ class Translator:
         # instructions are only space separated {add, }
         instructions = [j for j in [i.strip().lower() for i in instruction.split(' ')] if j not in ['']]
         if len(instructions)>0 and instructions[0] in self.instructions:
-            op_code = self.op[instructions[0]]
-            dest = self.int2bs(instructions[1][1:],3)
+            pass
         else:
             return 'ERROR'
 
-        if instructions[0] in self.register_op:
+        if instructions[0] in self.register_op: 
             src1=self.reg[instructions[2]]
             src2=self.reg[instructions[3]]
-            return self.pad_end(BIT_LENGTH,op_code+dest+src1+src2)
+            dest = self.reg[instructions[1]]
+            to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct[instructions[0]]
+            return to_return
 
         elif instructions[0] in self.immediate:
+            dest = self.reg[instructions[1]]
             src1=self.reg[instructions[2]]
             imm = self.int2bs(instructions[3],16)
-            return op_code+dest+src1+imm
+            return self.op['i']+dest+src1+imm
+        
         elif instructions[0] in self.memory:
+            dest = self.reg[instructions[1]]
             offset = self.int2bs(instructions[2][:-4],16)
             src=self.reg[instructions[2][-3:-1]]
-            return op_code+dest+src+offset
+            return self.op[instructions[0]]+dest+src+offset
+        elif instructions[0] in self.branch:
+            dest = self.reg[instructions[1]]
+            src1=self.reg[instructions[2]]
+            imm = self.int2bs(instructions[3],16)
+            return self.op['b']+dest+src1+imm
 
         return 'ERROR'
 
@@ -97,7 +110,7 @@ if __name__ == "__main__":
     print ("add $1 $0 $1")
     print (i.compile("add $1 $0 $1"))
 
-    print ("add $1 $0 $1")
+    print ("addi $1 $0 -1")
     print (i.compile("addi $1 $0 -1"))
 
     print("sw $1 -1($0)")

@@ -1,8 +1,8 @@
-import Instruction_Word_70
+import Instruction_Word_100
 
 def main():
     file_to_assemble = open('test_files/'+'Basic-LW-SW-rev.asm','r') 
-    translator = Instruction_Word_70.Translator()
+    translator = Instruction_Word_100.Translator()
     f=open('output.hex','w')
     f.write('v2.0 raw\n')
     for line in file_to_assemble:
