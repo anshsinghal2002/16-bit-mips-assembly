@@ -1,4 +1,4 @@
-#presuming all registers begin empty
+# presuming all registers begin empty
 # when this code is done running
 # $4 should contain 4
 # $5 should contain 5

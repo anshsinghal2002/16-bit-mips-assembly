@@ -1,16 +1,16 @@
-BIT_LENGTH = 27
-OP_LEN = 5
+BIT_LENGTH = 28
+OP_LEN = 6
 class Translator:
     def __init__(self) -> None:
         self.op = {
-            'add': self.pad(OP_LEN,'0'),
-            'and':self.pad(OP_LEN,'01'),
-            'or': self.pad(OP_LEN,'10'),
-            'sub': self.pad(OP_LEN,'11'),
-            'addi': self.pad(OP_LEN,'10000'),
-            'andi': self.pad(OP_LEN,'10001'),
-            'ori': self.pad(OP_LEN,'10010'),
-            'subi': self.pad(OP_LEN,'10011'),
+            'add': self.pad(OP_LEN,'000000'),
+            'and':self.pad(OP_LEN,'000001'),
+            'or': self.pad(OP_LEN,'000010'),
+            'sub': self.pad(OP_LEN,'000011'),
+            'addi': self.pad(OP_LEN,'100000'),
+            'andi': self.pad(OP_LEN,'100001'),
+            'ori': self.pad(OP_LEN,'100010'),
+            'subi': self.pad(OP_LEN,'100011'),
             'sw': self.pad(OP_LEN,'11000'),
             'lw':self.pad(OP_LEN,'10100')
 
@@ -24,7 +24,6 @@ class Translator:
     def compile(self,instruction):
         # instructions are only space separated {add, }
         instructions = [j for j in [i.strip().lower() for i in instruction.split(' ')] if j not in ['']]
-        print (instructions)
         if len(instructions)>0 and instructions[0] in self.instructions:
             op_code = self.op[instructions[0]]
             dest = self.int2bs(instructions[1][1:],3)
