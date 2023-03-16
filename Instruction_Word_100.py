@@ -16,7 +16,7 @@ class Translator:
             'lw':self.pad(OP_LEN,'100011'),
             'sw':self.pad(OP_LEN,'101011'),
             'b':self.pad(OP_LEN,'000100'),
-            'i':self.pad(OP_LEN,'100000')
+            'addi':self.pad(OP_LEN,'000010')
         }
         self.register_op = ['add','sgt','slt','and','or','sub']
         self.immediate=['addi','andi','ori','subi']
