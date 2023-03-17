@@ -9,20 +9,23 @@ class Translator:
             'or': self.pad(F_LEN,'100101'),
             'sub': self.pad(F_LEN,'100010'),
             'sw': self.pad(F_LEN,'0'),
-            'lw':self.pad(F_LEN,'0')
+            'lw':self.pad(F_LEN,'0'),
+            'slt':self.pad(F_LEN, '101010')
         }
         self.op = {
             'r':self.pad(OP_LEN,'000000'),
             'lw':self.pad(OP_LEN,'100011'),
             'sw':self.pad(OP_LEN,'101011'),
             'b':self.pad(OP_LEN,'000100'),
-            'addi':self.pad(OP_LEN,'000010')
+            'i':self.pad(OP_LEN,'001000'),
+            'j':self.pad(OP_LEN, '000010')
         }
         self.register_op = ['add','sgt','slt','and','or','sub']
         self.immediate=['addi','andi','ori','subi']
         self.branch=['beq']
         self.memory=['sw','lw']
-        self.instructions=self.register_op+self.immediate+self.memory
+        self.jump=['j']
+        self.instructions=self.register_op+self.immediate+self.memory+self.branch+self.jump
         self.reg = {'$'+i:self.int2bs(i,3) for i in [str(j) for j in range(8)]}
     
     def compile(self,instruction):
@@ -33,12 +36,19 @@ class Translator:
         else:
             return 'ERROR'
 
-        if instructions[0] in self.register_op: 
-            src1=self.reg[instructions[2]]
-            src2=self.reg[instructions[3]]
-            dest = self.reg[instructions[1]]
-            to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct[instructions[0]]
-            return to_return
+        if instructions[0] in self.register_op:
+            if  instructions[0] == 'sgt':
+                src2=self.reg[instructions[2]]
+                src1=self.reg[instructions[3]]
+                dest = self.reg[instructions[1]]
+                to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct['slt']
+                return to_return
+            else:
+                src1=self.reg[instructions[2]]
+                src2=self.reg[instructions[3]]
+                dest = self.reg[instructions[1]]
+                to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct[instructions[0]]
+                return to_return
 
         elif instructions[0] in self.immediate:
             dest = self.reg[instructions[1]]
@@ -51,11 +61,16 @@ class Translator:
             offset = self.int2bs(instructions[2][:-4],16)
             src=self.reg[instructions[2][-3:-1]]
             return self.op[instructions[0]]+dest+src+offset
+        
         elif instructions[0] in self.branch:
             dest = self.reg[instructions[1]]
             src1=self.reg[instructions[2]]
             imm = self.int2bs(instructions[3],16)
             return self.op['b']+dest+src1+imm
+        
+        elif instructions[0] in self.jump:
+            target_addres = self.int2bs(instructions[1],22)
+            return self.op['j']+target_addres
 
         return 'ERROR'
 
@@ -119,7 +134,14 @@ if __name__ == "__main__":
     print("lw $1 -1($0)")
     print (i.compile("lw $1 -1($0)"))
 
-    
+    print("beq $1 $2 3")
+    print(i.compile("beq $1 $2 3"))
 
+    print("j 7")
+    print(i.compile("j 3"))
 
+    print("slt $1 $2 $3")
+    print(i.compile("slt $1 $2 $3"))
 
+    print("slt $1 $2 $3")
+    print(i.compile("slt $1 $2 $2"))
