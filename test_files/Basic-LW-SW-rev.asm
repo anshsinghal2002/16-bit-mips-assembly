@@ -3,7 +3,7 @@
 # you will need to REWRITE this code in order to work with your processor 
 #
 # results: values 0..7 should be in memory locations 0..7
- 	   values 7..0 should be in registers 0..7 (switched)
+# 	   values 7..0 should be in registers 0..7 (switched)
 
 addi $1 $0 1
 addi $2 $0 2
