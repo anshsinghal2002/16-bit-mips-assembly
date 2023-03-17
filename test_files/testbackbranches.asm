@@ -2,6 +2,7 @@
 #the loop should run five times
 #and registers 1-5 should all contain 5
 #anything else, and your branching fails
+
 addi $1 $0 1
 addi $1 $0 1
 addi $2 $0 1

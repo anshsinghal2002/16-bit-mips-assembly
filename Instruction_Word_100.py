@@ -19,6 +19,7 @@ class Translator:
             'b':self.pad(OP_LEN,'000100'),
             'i':self.pad(OP_LEN,'001000'),
             'j':self.pad(OP_LEN, '000010')
+
         }
         self.register_op = ['add','sgt','slt','and','or','sub']
         self.immediate=['addi','andi','ori','subi']
@@ -26,6 +27,7 @@ class Translator:
         self.memory=['sw','lw']
         self.jump=['j']
         self.instructions=self.register_op+self.immediate+self.memory+self.branch+self.jump
+
         self.reg = {'$'+i:self.int2bs(i,3) for i in [str(j) for j in range(8)]}
     
     def compile(self,instruction):
@@ -71,7 +73,7 @@ class Translator:
         elif instructions[0] in self.jump:
             target_addres = self.int2bs(instructions[1],22)
             return self.op['j']+target_addres
-
+            
         return 'ERROR'
 
 
