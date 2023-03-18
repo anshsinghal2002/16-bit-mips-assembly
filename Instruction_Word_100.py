@@ -23,7 +23,7 @@ class Translator:
         }
         self.register_op = ['add','sgt','slt','and','or','sub']
         self.immediate=['addi','andi','ori','subi']
-        self.branch=['beq']
+        self.branch=['beq','blt','bgt']
         self.memory=['sw','lw']
         self.jump=['j']
         self.instructions=self.register_op+self.immediate+self.memory+self.branch+self.jump
@@ -44,35 +44,48 @@ class Translator:
                 src1=self.reg[instructions[3]]
                 dest = self.reg[instructions[1]]
                 to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct['slt']
-                return to_return
+                return self.bs2hex(to_return)
             else:
                 src1=self.reg[instructions[2]]
                 src2=self.reg[instructions[3]]
                 dest = self.reg[instructions[1]]
                 to_return = self.op['r']+dest+src1+src2+self.pad(7,'0')+self.funct[instructions[0]]
-                return to_return
+                return self.bs2hex(to_return)
 
         elif instructions[0] in self.immediate:
             dest = self.reg[instructions[1]]
             src1=self.reg[instructions[2]]
             imm = self.int2bs(instructions[3],16)
-            return self.op['i']+dest+src1+imm
+            return self.bs2hex(self.op['i']+dest+src1+imm)
         
         elif instructions[0] in self.memory:
             dest = self.reg[instructions[1]]
             offset = self.int2bs(instructions[2][:-4],16)
             src=self.reg[instructions[2][-3:-1]]
-            return self.op[instructions[0]]+dest+src+offset
+            return self.bs2hex(self.op[instructions[0]]+dest+src+offset)
         
         elif instructions[0] in self.branch:
-            dest = self.reg[instructions[1]]
-            src1=self.reg[instructions[2]]
-            imm = self.int2bs(instructions[3],16)
-            return self.op['b']+dest+src1+imm
+            if instructions[0]=='blt':
+                line1 = self.compile('sgt $1 '+instructions[1]+' '+instructions[2])
+                line2 = self.compile('beq $0 $1 '+instructions[3])
+                print ('sgt $1 '+instructions[1]+' '+instructions[2])
+                print ('beq $0 $1 '+instructions[3])
+                print (line1+'\n'+line2+'\n')
+                return line1+'\n'+line2
+            elif instructions[0]=='bgt':
+                line1 = self.compile('slt $1 '+instructions[1]+' '+instructions[2])
+                line2 = self.compile('beq $0 $1 '+instructions[3])
+                return line1+'\n'+line2
+
+            else:
+                dest = self.reg[instructions[1]]
+                src1=self.reg[instructions[2]]
+                imm = self.int2bs(instructions[3],16)
+                return self.bs2hex(self.op['b']+dest+src1+imm)
         
         elif instructions[0] in self.jump:
             target_addres = self.int2bs(instructions[1],22)
-            return self.op['j']+target_addres
+            return self.bs2hex(self.op['j']+target_addres)
             
         return 'ERROR'
 
