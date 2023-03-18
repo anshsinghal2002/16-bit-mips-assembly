@@ -1,7 +1,6 @@
-import Instruction_Word_100
 label_dict={}
 
-def label(file):
+def main():
     file_to_assemble = open('test_files/'+'testbranch.asm','r') 
     lines = []
     for line in file_to_assemble:
@@ -30,28 +29,11 @@ def label(file):
             new_line = line[:-1]+[str(new_num)]
             f.write(' '.join(new_line))
         f.write('\n')
-    f.close()
 
         
     file_to_assemble.close()
-
 def calc_label(label,curr_line_no):
     return label_dict[label]-curr_line_no
-def main():
-    file='test_files/'+'testlabel.asm'
-    label(file)
-    file_to_assemble = open('test.asm','r') 
-    translator = Instruction_Word_100.Translator()
-    f=open('output.hex','w')
-    f.write('v2.0 raw\n')
-    for line in file_to_assemble:
-        machine_code = translator.compile(line)
-        if machine_code!='ERROR':
-            print (translator.bs2hex(machine_code))
-            f.write(translator.bs2hex(machine_code))
-            f.write(' ')
-    f.close()
-    file_to_assemble.close()
 
 if __name__ == "__main__":
     main()
